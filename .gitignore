@@ -1,0 +1,14 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+**/build/
+
+# Ignore intellij .idea folder except dictionaries and code style
+.idea/*
+!.idea/dictionaries
+.idea/dictionaries/*
+!.idea/dictionaries/developer.xml
+!.idea/codeStyles/codeStyleConfig.xml
+local.properties
