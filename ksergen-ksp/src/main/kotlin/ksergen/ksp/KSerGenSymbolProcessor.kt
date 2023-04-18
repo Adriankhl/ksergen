@@ -14,17 +14,14 @@ internal class KSerGenSymbolProcessor(
 ) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
         environment.logger.info("Starting KSerGen Processor.")
-        val immutableDeclarations: Sequence<KSDeclaration> = resolver.getAllFiles().flatMap {
-            it.declarations
-        }.filter { declaration ->
-            declaration.hasAnnotation(GenerateImmutable::class)
-        }
 
-        val serializableDeclarations : Sequence<KSDeclaration> = resolver.getAllFiles().flatMap {
-            it.declarations
-        }.filter { declaration ->
-            declaration.hasAnnotation(Serializable::class)
-        }
+        val immutableDeclarations: Sequence<KSDeclaration> = resolver.getSymbolsWithAnnotation(
+            GenerateImmutable::class.qualifiedName.orEmpty()
+        ).filterIsInstance<KSDeclaration>()
+
+        val serializableDeclarations : Sequence<KSDeclaration> = resolver.getSymbolsWithAnnotation(
+            Serializable::class.qualifiedName.orEmpty()
+        ).filterIsInstance<KSDeclaration>()
 
         return emptyList()
     }
