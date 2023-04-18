@@ -17,3 +17,4 @@ ben-manes-versions = { id = "com.github.ben-manes.versions", version.ref = "grad
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokkaVersion" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
