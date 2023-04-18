@@ -8,7 +8,7 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import ksergen.annotations.GenerateImmutable
 import kotlin.reflect.KClass
 
-internal class KimGenSymbolProcessor(
+internal class KSerGenSymbolProcessor(
     private val environment: SymbolProcessorEnvironment
 ) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
