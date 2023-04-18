@@ -1,3 +1,6 @@
 package ksergen.mock
 
-data class IntData(val a: Int)
+import ksergen.annotations.GenerateImmutable
+
+@GenerateImmutable
+data class MutableIntData(var a: Int)

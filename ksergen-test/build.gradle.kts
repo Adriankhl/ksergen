@@ -7,6 +7,7 @@ plugins {
 
 dependencies {
     ksp(project(":ksergen-ksp"))
+    implementation(project(":ksergen-annotations"))
     implementation(libs.kotlinx.serialization.json)
     testImplementation(kotlin("test"))
 }
