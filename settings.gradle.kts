@@ -5,3 +5,10 @@ include(
     "ksergen-ksp",
     "ksergen-test",
 )
+
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+    }
+}
