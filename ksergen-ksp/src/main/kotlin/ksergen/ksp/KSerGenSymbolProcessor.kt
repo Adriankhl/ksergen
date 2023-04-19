@@ -7,6 +7,8 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.ksp.writeTo
 import kotlinx.serialization.Serializable
 import ksergen.annotations.GenerateImmutable
 import kotlin.reflect.KClass
@@ -38,6 +40,28 @@ internal class KSerGenSymbolProcessor(
             }.toList()
 
         logger.info("${immutableDeclarations.size} GenerateImmutable annotation")
+
+        val immutablePackageMap: Map<String, List<KSClassDeclaration>> =
+            immutableDeclarations.groupBy {
+                it.packageName.asString()
+            }
+
+        immutablePackageMap.forEach { (packageName, dList) ->
+            val immutableFileMap: Map<String, List<KSClassDeclaration>> = dList.groupBy {
+                // Drop .Kt from the file name
+                it.containingFile!!.fileName.dropLast(3)
+            }
+
+            immutableFileMap.forEach { (fileName, declarationList) ->
+                val fileSpec: FileSpec = generateImmutableFile(
+                    packageName,
+                    fileName,
+                    declarationList
+                )
+
+                fileSpec.writeTo(environment.codeGenerator, false)
+            }
+        }
 
         val serializableDeclarations: List<KSClassDeclaration> = resolver
             .getSymbolsWithAnnotation(Serializable::class.qualifiedName.orEmpty())
