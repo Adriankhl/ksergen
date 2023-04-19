@@ -7,6 +7,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.toTypeName
+import kotlinx.serialization.Serializable
 
 fun generateImmutableFile(
     packageName: String,
@@ -21,6 +22,7 @@ fun generateImmutableFile(
             addType(
                 TypeSpec.classBuilder(declaration.simpleName.getShortName().drop(7))
                     .addModifiers(KModifier.DATA)
+                    .addAnnotation(Serializable::class)
                     .primaryConstructor(
                         FunSpec.constructorBuilder().apply {
                             declaration.primaryConstructor!!.parameters.forEach { parameter ->
