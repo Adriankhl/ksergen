@@ -52,6 +52,8 @@ internal class KSerGenSymbolProcessor(
                     s.declaration
                 }.filterIsInstance<KSClassDeclaration>().filter { p ->
                     p.getSealedSubclasses().none()
+                }.filter { p ->
+                    p.hasAnnotation(Serializable::class)
                 }.map { p ->
                     p to c
                 }
