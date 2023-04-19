@@ -1,5 +1,6 @@
 package ksergen.ksp
 
+import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -35,12 +36,23 @@ internal class KSerGenSymbolProcessor(
 
         logger.info("${immutableDeclarations.size} GenerateImmutable annotation")
 
-        val serializableDeclarations : List<KSClassDeclaration> = resolver
+        val serializableDeclarations: List<KSClassDeclaration> = resolver
             .getSymbolsWithAnnotation(Serializable::class.qualifiedName.orEmpty())
             .filterIsInstance<KSClassDeclaration>()
             .toList()
 
         logger.info("${serializableDeclarations.size} Serializable annotation")
+
+        val serializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
+            serializableDeclarations.flatMap { c ->
+                c.getAllSuperTypes().map { s ->
+                    s.declaration
+                }.filterIsInstance<KSClassDeclaration>().filter { p ->
+                    p.getSealedSubclasses().none()
+                }.map { p ->
+                    p to c
+                }
+            }
 
         return emptyList()
     }
