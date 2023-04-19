@@ -17,7 +17,10 @@ internal class KSerGenSymbolProcessor(
     private val logger = environment.logger
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        logger.info("Starting KSerGen Processor.".repeat(2))
+        // Change the message to force ksp processor to be triggered
+        logger.info("2")
+
+        logger.info("Starting KSerGen Processor")
 
         val immutableDeclarations: List<KSClassDeclaration> = resolver
             .getSymbolsWithAnnotation(GenerateImmutable::class.qualifiedName.orEmpty())
@@ -53,6 +56,8 @@ internal class KSerGenSymbolProcessor(
                     p to c
                 }
             }
+
+        logger.info("${serializablePairs.size} serializable pair")
 
         return emptyList()
     }
