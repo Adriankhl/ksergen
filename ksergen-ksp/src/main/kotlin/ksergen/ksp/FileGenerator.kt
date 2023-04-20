@@ -42,8 +42,7 @@ fun generateImmutableFile(
                                 ).initializer(parameter.name!!.getShortName()).build()
                             )
                         }
-                    }
-                    .build()
+                    }.build()
             )
         }
     }.build()
