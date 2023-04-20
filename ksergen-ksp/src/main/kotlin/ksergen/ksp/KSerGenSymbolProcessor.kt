@@ -6,12 +6,10 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.ksp.writeTo
 import kotlinx.serialization.Serializable
 import ksergen.annotations.GenerateImmutable
-import kotlin.reflect.KClass
 
 internal class KSerGenSymbolProcessor(
     private val environment: SymbolProcessorEnvironment
@@ -56,7 +54,8 @@ internal class KSerGenSymbolProcessor(
                 val fileSpec: FileSpec = generateImmutableFile(
                     packageName,
                     fileName,
-                    declarationList
+                    declarationList,
+                    logger,
                 )
 
                 fileSpec.writeTo(environment.codeGenerator, false)
@@ -89,8 +88,3 @@ internal class KSerGenSymbolProcessor(
     }
 }
 
-private fun <T : Annotation> KSDeclaration.hasAnnotation(annotationClass: KClass<T>): Boolean {
-    return this.annotations.any {
-        it.shortName.getShortName() == annotationClass.simpleName
-    }
-}

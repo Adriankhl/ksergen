@@ -1,18 +1,19 @@
 package ksergen.ksp
 
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.ksp.toTypeName
 import kotlinx.serialization.Serializable
 
 fun generateImmutableFile(
     packageName: String,
     fileName: String,
     declarationList: List<KSClassDeclaration>,
+    logger: KSPLogger,
 ): FileSpec {
     return FileSpec.builder(
         packageName = packageName,
@@ -28,7 +29,7 @@ fun generateImmutableFile(
                             declaration.primaryConstructor!!.parameters.forEach { parameter ->
                                addParameter(
                                    name = parameter.name!!.getShortName(),
-                                   type = parameter.type.toTypeName()
+                                   type = convertTypeImmutable(parameter.type.resolve(), logger)
                                )
                             }
                         }.build()
@@ -37,7 +38,7 @@ fun generateImmutableFile(
                             addProperty(
                                 PropertySpec.builder(
                                     parameter.name!!.getShortName(),
-                                    parameter.type.toTypeName()
+                                    convertTypeImmutable(parameter.type.resolve(), logger),
                                 ).initializer(parameter.name!!.getShortName()).build()
                             )
                         }
