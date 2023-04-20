@@ -2,6 +2,7 @@ package ksergen.annotations
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MetaSerializable
+import kotlinx.serialization.Serializable
 
 /**
  * Generate a serializable immutable copy of this class.
@@ -9,7 +10,6 @@ import kotlinx.serialization.MetaSerializable
  */
 @OptIn(ExperimentalSerializationApi::class)
 @Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
 @MetaSerializable
 annotation class GenerateImmutable
