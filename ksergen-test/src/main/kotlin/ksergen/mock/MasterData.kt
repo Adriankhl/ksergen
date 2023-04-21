@@ -32,4 +32,4 @@ data class MutableMasterData(
         )
     ),
     val emptyMap: MutableMap<Int, MutableIntData> = mutableMapOf(),
-)
+) : MutablePolymorphicSealData(), MutableDummyInterface
