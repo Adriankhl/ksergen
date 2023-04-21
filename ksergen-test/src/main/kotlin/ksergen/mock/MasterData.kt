@@ -10,4 +10,13 @@ data class MutableMasterData(
     var id: MutableIntData,
     var td: MutableDoubleData,
     val intList: MutableList<MutableIntData>,
+    val doubleSet: MutableSet<MutableDoubleData>,
+    var doubleMap: MutableMap<Int, MutableDoubleData>,
+    val nestedMap: MutableMap<Int, MutableMap<Int, MutableDoubleData>>,
+    val weirdCollection: MutableMap<MutableIntData, MutableMap<Int, MutableMap<String, MutableDoubleData>>>,
 )
+
+//val intList: MutableList<MutableIntData>,
+//val doubleSet: MutableSet<MutableDoubleData>,
+//var doubleMap: MutableMap<Int, MutableDoubleData>,
+//val weirdCollection: MutableMap<MutableIntData, MutableMap<Int, MutableMap<String, MutableDoubleData>>>,
