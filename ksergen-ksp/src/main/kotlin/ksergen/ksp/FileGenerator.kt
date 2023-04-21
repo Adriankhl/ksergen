@@ -29,7 +29,7 @@ fun generateImmutableFile(
                             declaration.primaryConstructor!!.parameters.forEach { parameter ->
                                addParameter(
                                    name = parameter.name!!.getShortName(),
-                                   type = convertTypeImmutable(parameter.type.resolve(), logger)
+                                   type = convertFullTypeImmutable(parameter.type.resolve(), logger)
                                )
                             }
                         }.build()
@@ -38,7 +38,7 @@ fun generateImmutableFile(
                             addProperty(
                                 PropertySpec.builder(
                                     parameter.name!!.getShortName(),
-                                    convertTypeImmutable(parameter.type.resolve(), logger),
+                                    convertFullTypeImmutable(parameter.type.resolve(), logger),
                                 ).initializer(parameter.name!!.getShortName()).build()
                             )
                         }
