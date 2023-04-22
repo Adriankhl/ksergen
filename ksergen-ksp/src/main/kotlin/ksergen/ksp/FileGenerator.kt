@@ -2,6 +2,7 @@ package ksergen.ksp
 
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
@@ -27,79 +28,82 @@ fun generateImmutableFile(
         fileName = fileName,
     ).apply {
         declarationList.forEach { declaration ->
-            addType(
-                if (declaration.primaryConstructor != null) {
-                    TypeSpec.classBuilder(declaration.simpleName.getShortName().drop(7)).apply {
-                        addModifiers(
-                            declaration.modifiers.mapNotNull { it.toKModifier() }
+            val builder = if (declaration.classKind == ClassKind.INTERFACE) {
+                TypeSpec.interfaceBuilder(declaration.simpleName.getShortName().drop(7))
+            } else {
+                TypeSpec.classBuilder(declaration.simpleName.getShortName().drop(7)).apply {
+                    addAnnotation(Serializable::class)
+
+                    if (declaration.hasAnnotation(SerialName::class)) {
+                        val serialNameAnnotation: KSAnnotation =
+                            declaration.annotations.first {
+                                it.shortName.getShortName() == "SerialName"
+                            }
+                        addAnnotation(
+                            serialNameAnnotation.toAnnotationSpec()
                         )
+                    } else {
+                        addAnnotation(
+                            AnnotationSpec.builder(SerialName::class)
+                                .addMember("%S", declaration.qualifiedName!!.asString())
+                                .build()
+                        )
+                    }
 
-                        addAnnotation(Serializable::class)
-
-                        if (declaration.hasAnnotation(SerialName::class)) {
-                            val serialNameAnnotation: KSAnnotation =
-                                declaration.annotations.first {
-                                    it.shortName.getShortName() == "SerialName"
-                                }
-                            addAnnotation(
-                                serialNameAnnotation.toAnnotationSpec()
-                            )
-                        } else {
-                            addAnnotation(
-                                AnnotationSpec.builder(SerialName::class)
-                                    .addMember("%S", declaration.qualifiedName!!.asString())
-                                    .build()
-                            )
-                        }
-
-                        declaration.superTypes.map {
-                            it.resolve()
-                        }.forEach {
-                            val superDeclaration: KSDeclaration = it.declaration
-                            if (superDeclaration is KSClassDeclaration) {
-                                if (superDeclaration.primaryConstructor == null) {
-                                    addSuperinterface(convertFullTypeImmutable(it, logger))
-                                } else {
-                                    superclass(convertFullTypeImmutable(it, logger))
-                                }
+                    declaration.superTypes.map {
+                        it.resolve()
+                    }.forEach {
+                        val superDeclaration: KSDeclaration = it.declaration
+                        if (superDeclaration is KSClassDeclaration) {
+                            if (superDeclaration.classKind != ClassKind.INTERFACE) {
+                                superclass(convertFullTypeImmutable(it, logger))
                             }
                         }
+                    }
 
-                        primaryConstructor(
-                            FunSpec.constructorBuilder().apply {
-                                declaration.primaryConstructor!!.parameters.forEach { parameter ->
-                                    addParameter(
-                                        name = parameter.name!!.getShortName(),
-                                        type = convertFullTypeImmutable(
-                                            parameter.type.resolve(),
-                                            logger
-                                        )
-                                    )
-                                }
-                            }.build()
-                        ).apply {
+                    primaryConstructor(
+                        FunSpec.constructorBuilder().apply {
                             declaration.primaryConstructor!!.parameters.forEach { parameter ->
-                                addProperty(
-                                    PropertySpec.builder(
-                                        parameter.name!!.getShortName(),
-                                        convertFullTypeImmutable(parameter.type.resolve(), logger),
-                                    ).initializer(parameter.name!!.getShortName()).build()
+                                addParameter(
+                                    name = parameter.name!!.getShortName(),
+                                    type = convertFullTypeImmutable(
+                                        parameter.type.resolve(),
+                                        logger
+                                    )
                                 )
                             }
-                        }
-                    }.build()
-                } else {
-                    TypeSpec.interfaceBuilder(
-                        declaration.simpleName.getShortName().drop(7)
+                        }.build()
                     ).apply {
-                        addModifiers(
-                            declaration.modifiers.mapNotNull { it.toKModifier() }
-                        )
-
-                        addAnnotation(Serializable::class)
-                    }.build()
+                        declaration.primaryConstructor!!.parameters.forEach { parameter ->
+                            addProperty(
+                                PropertySpec.builder(
+                                    parameter.name!!.getShortName(),
+                                    convertFullTypeImmutable(parameter.type.resolve(), logger),
+                                ).initializer(parameter.name!!.getShortName()).build()
+                            )
+                        }
+                    }
                 }
-            )
+            }
+
+            builder.apply {
+                addModifiers(
+                    declaration.modifiers.mapNotNull { it.toKModifier() }
+                )
+
+                declaration.superTypes.map {
+                    it.resolve()
+                }.forEach {
+                    val superDeclaration: KSDeclaration = it.declaration
+                    if (superDeclaration is KSClassDeclaration) {
+                        if (superDeclaration.classKind == ClassKind.INTERFACE) {
+                            addSuperinterface(convertFullTypeImmutable(it, logger))
+                        }
+                    }
+                }
+            }
+
+            addType(builder.build())
         }
     }.build()
 }
