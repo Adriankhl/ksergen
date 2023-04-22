@@ -1,10 +1,12 @@
 package ksergen.mock
 
+import kotlinx.serialization.SerialName
 import ksergen.annotations.GenerateImmutable
 import ksergen.mock.base.MutableDoubleData
 import ksergen.mock.base.MutableIntData
 
 @GenerateImmutable
+@SerialName("MasterData")
 data class MutableMasterData(
     var dataName: String = "Hello",
     var id: MutableIntData = MutableIntData(1, 2),

@@ -1,5 +1,6 @@
 package ksergen.mock
 
+import kotlinx.serialization.SerialName
 import ksergen.annotations.GenerateImmutable
 
 @GenerateImmutable

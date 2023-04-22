@@ -1,17 +1,21 @@
 package ksergen.ksp
 
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.ksp.toAnnotationSpec
 import com.squareup.kotlinpoet.ksp.toKModifier
-import com.squareup.kotlinpoet.ksp.toTypeName
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@OptIn(KspExperimental::class)
 fun generateImmutableFile(
     packageName: String,
     fileName: String,
@@ -31,6 +35,22 @@ fun generateImmutableFile(
                         )
 
                         addAnnotation(Serializable::class)
+
+                        if (declaration.hasAnnotation(SerialName::class)) {
+                            val serialNameAnnotation: KSAnnotation =
+                                declaration.annotations.first {
+                                    it.shortName.getShortName() == "SerialName"
+                                }
+                            addAnnotation(
+                                serialNameAnnotation.toAnnotationSpec()
+                            )
+                        } else {
+                            addAnnotation(
+                                AnnotationSpec.builder(SerialName::class)
+                                    .addMember("%S", declaration.qualifiedName!!.asString())
+                                    .build()
+                            )
+                        }
 
                         declaration.superTypes.map {
                             it.resolve()
