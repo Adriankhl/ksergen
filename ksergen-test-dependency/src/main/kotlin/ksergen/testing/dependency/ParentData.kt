@@ -3,11 +3,11 @@ package ksergen.testing.dependency
 import kotlinx.serialization.Serializable
 
 @Serializable
-class SerializableParentData
+abstract class SerializableParentData
 
 @Serializable
-open class MutableSerializableParentData
+abstract class MutableSerializableParentData
 
-class ParentData
+abstract class ParentData
 
-class MutableParentData
+abstract class MutableParentData

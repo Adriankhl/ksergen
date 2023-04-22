@@ -2,6 +2,7 @@ package ksergen.mock
 
 import kotlinx.serialization.SerialName
 import ksergen.annotations.GenerateImmutable
+import ksergen.testing.dependency.MutableSerializableParentData
 
 @GenerateImmutable
 sealed class MutablePolymorphicSealData
@@ -18,5 +19,13 @@ data class MutablePolymorphicData(
     val dm: MutableMap<Int, MutablePolymorphicSealData> = mutableMapOf(
         1 to MutableMasterData(),
         2 to MutableSimpleMasterData(),
+    )
+)
+
+@GenerateImmutable
+data class MutableExternalPolymorphicData(
+    val d: MutableSerializableParentData = MutableExternalMasterData(),
+    val dm: MutableMap<Int, MutableSerializableParentData> = mutableMapOf(
+        1 to MutableExternalMasterData(),
     )
 )
