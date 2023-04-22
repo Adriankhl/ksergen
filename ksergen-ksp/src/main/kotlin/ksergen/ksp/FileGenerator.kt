@@ -16,7 +16,6 @@ import com.squareup.kotlinpoet.ksp.toKModifier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@OptIn(KspExperimental::class)
 fun generateImmutableFile(
     packageName: String,
     fileName: String,
