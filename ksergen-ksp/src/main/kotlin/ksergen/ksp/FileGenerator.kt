@@ -120,7 +120,7 @@ fun generateSerializersModuleFile(
 
         addType(builder.build())
 
-        val serializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
+        val originalSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
             serializableDeclarations.flatMap { c ->
                 c.getAllSuperTypes().map { s ->
                     s.declaration
@@ -133,7 +133,22 @@ fun generateSerializersModuleFile(
                 }
             }
 
-        logger.info("${serializablePairs.size} serializable pair")
+        logger.info("${originalSerializablePairs.size} original serializable pair")
+
+        val mutableSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
+            immutableDeclarations.flatMap { c ->
+                c.getAllSuperTypes().map { s ->
+                    s.declaration
+                }.filterIsInstance<KSClassDeclaration>().filter { p ->
+                    p.getSealedSubclasses().none()
+                }.filter { p ->
+                    p.hasAnnotation(Serializable::class)
+                }.map { p ->
+                    p to c
+                }
+            }
+
+        logger.info("${mutableSerializablePairs.size} mutable serializable pair")
 
     }.build()
 }
