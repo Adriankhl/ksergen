@@ -1,6 +1,6 @@
 package ksergen.ksp
 
-import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotation
@@ -104,5 +104,36 @@ fun generateImmutableFile(
 
             addType(builder.build())
         }
+    }.build()
+}
+
+fun generateSerializersModuleFile(
+    serializableDeclarations: List<KSClassDeclaration>,
+    immutableDeclarations: List<KSClassDeclaration>,
+    logger: KSPLogger,
+): FileSpec {
+    return FileSpec.builder(
+        packageName = "ksergen.serializers.module",
+        fileName = "GeneratedModule"
+    ).apply {
+        val builder = TypeSpec.objectBuilder("GeneratedModule")
+
+        addType(builder.build())
+
+        val serializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
+            serializableDeclarations.flatMap { c ->
+                c.getAllSuperTypes().map { s ->
+                    s.declaration
+                }.filterIsInstance<KSClassDeclaration>().filter { p ->
+                    p.getSealedSubclasses().none()
+                }.filter { p ->
+                    p.hasAnnotation(Serializable::class)
+                }.map { p ->
+                    p to c
+                }
+            }
+
+        logger.info("${serializablePairs.size} serializable pair")
+
     }.build()
 }
