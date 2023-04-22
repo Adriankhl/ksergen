@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 class SerializableParentData
 
 @Serializable
-class MutableSerializableParentData
+open class MutableSerializableParentData
 
 class ParentData
 
