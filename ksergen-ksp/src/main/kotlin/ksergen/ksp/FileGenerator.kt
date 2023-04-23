@@ -177,6 +177,13 @@ fun generateSerializersModuleFile(
                             v.map { it.second }
                         }
 
+                    val mutableSerializableMap: Map<KSClassDeclaration, List<KSClassDeclaration>> =
+                        mutableSerializablePairs.groupBy {
+                            it.first
+                        }.mapValues { (_, v) ->
+                            v.map { it.second }
+                        }
+
                     beginControlFlow("SerializersModule")
                     originalSerializableMap.forEach { (parent, childList) ->
                         val parentName = MemberName(
@@ -190,6 +197,39 @@ fun generateSerializersModuleFile(
                                 child.simpleName.asString()
                             )
                             addStatement("%M(%M::class)", subClass, childName)
+                        }
+                        endControlFlow()
+                    }
+                    mutableSerializableMap.forEach { (parent, childList) ->
+                        val parentName = MemberName(
+                            parent.packageName.asString(),
+                            parent.simpleName.asString()
+                        )
+                        beginControlFlow("%M(%M::class)", polymorphic, parentName)
+                        childList.forEach { child ->
+                            val childName = MemberName(
+                                child.packageName.asString(),
+                                child.simpleName.asString()
+                            )
+                            addStatement("%M(%M::class)", subClass, childName)
+                        }
+                        endControlFlow()
+
+                        val immutableParentName = MemberName(
+                            parent.packageName.asString(),
+                            if (parent.hasAnnotation(GenerateImmutable::class)) {
+                                parent.simpleName.asString().drop(7)
+                            } else {
+                                parent.simpleName.asString()
+                            }
+                        )
+                        beginControlFlow("%M(%M::class)", polymorphic, immutableParentName)
+                        childList.forEach { child ->
+                            val immutableChildName = MemberName(
+                                child.packageName.asString(),
+                                child.simpleName.asString().drop(7),
+                            )
+                            addStatement("%M(%M::class)", subClass, immutableChildName)
                         }
                         endControlFlow()
                     }
