@@ -20,6 +20,14 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import ksergen.annotations.GenerateImmutable
 
+/**
+ * Generate a file to store the immutable versions of the classes from the original source file
+ *
+ * @param packageName the package name of the generated file
+ * @param fileName the file name of the generated file
+ * @param declarationList generate the immutable version of these classes
+ * @param logger logger for ksp process
+ */
 fun generateImmutableFile(
     packageName: String,
     fileName: String,
@@ -33,12 +41,17 @@ fun generateImmutableFile(
         indent("    ")
 
         declarationList.forEach { declaration ->
+            // handle interface and class differently
+            // interface does not need to have the @Serializable annotation
             val builder = if (declaration.classKind == ClassKind.INTERFACE) {
                 TypeSpec.interfaceBuilder(declaration.simpleName.getShortName().drop(7))
             } else {
                 TypeSpec.classBuilder(declaration.simpleName.getShortName().drop(7)).apply {
                     addAnnotation(Serializable::class)
 
+                    // Copy the original SerialName if it exists
+                    // otherwise use the full class path as the serialname
+                    // so they can be serialized to each other
                     if (declaration.hasAnnotation(SerialName::class)) {
                         val serialNameAnnotation: KSAnnotation =
                             declaration.annotations.first {
@@ -66,6 +79,8 @@ fun generateImmutableFile(
                         }
                     }
 
+                    // Set primary constructor and property for the same property
+                    // so that the generated data class has a proper constructor layout
                     primaryConstructor(
                         FunSpec.constructorBuilder().apply {
                             declaration.primaryConstructor!!.parameters.forEach { parameter ->
@@ -78,19 +93,22 @@ fun generateImmutableFile(
                                 )
                             }
                         }.build()
-                    ).apply {
-                        declaration.primaryConstructor!!.parameters.forEach { parameter ->
-                            addProperty(
-                                PropertySpec.builder(
-                                    parameter.name!!.getShortName(),
-                                    convertFullTypeImmutable(parameter.type.resolve(), logger),
-                                ).initializer(parameter.name!!.getShortName()).build()
-                            )
-                        }
+                    )
+
+                    declaration.getAllProperties().forEach { property ->
+                        property.modifiers
+                        addProperty(
+                            PropertySpec.builder(
+                                property.simpleName.asString(),
+                                convertFullTypeImmutable(property.type.resolve(), logger),
+                            ).initializer(property.simpleName.asString())
+                                .build()
+                        )
                     }
                 }
             }
 
+            // Common generation logic for both interface and class
             builder.apply {
                 addModifiers(
                     declaration.modifiers.mapNotNull { it.toKModifier() }

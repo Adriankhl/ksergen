@@ -10,6 +10,9 @@ import com.squareup.kotlinpoet.ksp.writeTo
 import kotlinx.serialization.Serializable
 import ksergen.annotations.GenerateImmutable
 
+/**
+ * Generate codes for GenerateImmutable annotation and Serializable annotation
+ */
 internal class KSerGenSymbolProcessor(
     private val environment: SymbolProcessorEnvironment
 ) : SymbolProcessor {
@@ -49,6 +52,8 @@ internal class KSerGenSymbolProcessor(
 
             logger.info("${serializableDeclarations.size} Serializable annotation")
 
+            // Group classes by package and then by file name
+            // Generate one file for each package + file name
             val immutablePackageMap: Map<String, List<KSClassDeclaration>> =
                 immutableDeclarations.groupBy {
                     it.packageName.asString()
@@ -72,6 +77,7 @@ internal class KSerGenSymbolProcessor(
                 }
             }
 
+            // Generate a file for SerializersModule
             val serializersModuleFileSpec: FileSpec = generateSerializersModuleFile(
                 serializableDeclarations, immutableDeclarations, logger
             )

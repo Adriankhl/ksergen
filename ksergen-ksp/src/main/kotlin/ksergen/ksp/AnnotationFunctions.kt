@@ -34,6 +34,9 @@ internal fun isMutableCollection(declaration: KSDeclaration): Boolean {
     return mutableCollectionName.contains(declaration.simpleName.getShortName())
 }
 
+/**
+ * Convert a mutable type to immutable, use recursion to deal with generic type.
+ */
 internal fun convertFullTypeImmutable(
     type: KSType,
     logger: KSPLogger,
@@ -49,6 +52,9 @@ internal fun convertFullTypeImmutable(
     }
 }
 
+/**
+ * Convert a mutable type with generic argument to immutable
+ */
 internal fun convertGenericTypeImmutable(
     type: KSType,
     logger: KSPLogger,
@@ -81,6 +87,9 @@ internal fun convertGenericTypeImmutable(
     }
 }
 
+/**
+ * Convert a simple non-generic type to immutable
+ */
 internal fun convertNonGenericImmutable(
     type: KSType,
     logger: KSPLogger,
