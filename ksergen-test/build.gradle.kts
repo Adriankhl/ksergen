@@ -13,6 +13,11 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
+afterEvaluate {
+    tasks.named("kspTestKotlin") {
+        enabled = false
+    }
+}
 
 tasks {
     test {
