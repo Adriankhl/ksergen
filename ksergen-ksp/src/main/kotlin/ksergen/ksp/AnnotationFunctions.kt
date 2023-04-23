@@ -12,20 +12,26 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 import ksergen.annotations.GenerateImmutable
 import kotlin.reflect.KClass
 
+/**
+ * Whether a class has a specific annotation
+ */
 internal fun <T : Annotation> KSDeclaration.hasAnnotation(annotationClass: KClass<T>): Boolean {
     return this.annotations.any {
         it.shortName.getShortName() == annotationClass.simpleName
     }
 }
 
-internal fun isMutableCollection(type: KSType): Boolean {
+/**
+ * Whether a class is a mutable collection in the standard kotlin library
+ */
+internal fun isMutableCollection(declaration: KSDeclaration): Boolean {
     val mutableCollectionName: Set<String> = setOf(
         "MutableList",
         "MutableMap",
         "MutableSet",
     )
 
-    return mutableCollectionName.contains(type.declaration.simpleName.getShortName())
+    return mutableCollectionName.contains(declaration.simpleName.getShortName())
 }
 
 internal fun convertFullTypeImmutable(
@@ -50,7 +56,7 @@ internal fun convertGenericTypeImmutable(
     logger.info("Start converting generic type")
 
     val shouldConvertType: Boolean = type.declaration.hasAnnotation(GenerateImmutable::class)
-            || isMutableCollection(type)
+            || isMutableCollection(type.declaration)
 
     return if (shouldConvertType) {
         val className: ClassName = type.toClassName()
