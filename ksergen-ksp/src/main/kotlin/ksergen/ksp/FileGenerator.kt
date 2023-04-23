@@ -7,9 +7,9 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.squareup.kotlinpoet.AnnotationSpec
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.buildCodeBlock
@@ -161,8 +161,38 @@ fun generateSerializersModuleFile(
                 SerializersModule::class
             ).apply {
                 initializer(buildCodeBlock {
+                    val polymorphic = MemberName(
+                        "kotlinx.serialization.modules",
+                        "polymorphic"
+                    )
+                    val subClass = MemberName(
+                        "kotlinx.serialization.modules",
+                        "subclass"
+                    )
+
+                    val originalSerializableMap: Map<KSClassDeclaration, List<KSClassDeclaration>> =
+                        originalSerializablePairs.groupBy {
+                            it.first
+                        }.mapValues { (_, v) ->
+                            v.map { it.second }
+                        }
+
                     beginControlFlow("SerializersModule")
-                    addStatement("1")
+                    originalSerializableMap.forEach { (parent, childList) ->
+                        val parentName = MemberName(
+                            parent.packageName.asString(),
+                            parent.simpleName.asString()
+                        )
+                        beginControlFlow("%M(%M::class)", polymorphic, parentName)
+                        childList.forEach { child ->
+                            val childName = MemberName(
+                                child.packageName.asString(),
+                                child.simpleName.asString()
+                            )
+                            addStatement("%M(%M::class)", subClass, childName)
+                        }
+                        endControlFlow()
+                    }
                     endControlFlow()
                 })
             }

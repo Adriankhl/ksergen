@@ -1,10 +1,12 @@
 package ksergen.mock
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import ksergen.annotations.GenerateImmutable
 import ksergen.mock.base.MutableDoubleData
 import ksergen.mock.base.MutableIntData
 import ksergen.testing.dependency.MutableSerializableParentData
+import ksergen.testing.dependency.SerializableParentData
 
 @GenerateImmutable
 @SerialName("MasterData")
@@ -67,3 +69,8 @@ data class MutableExternalMasterData(
     ),
     val emptyMap: MutableMap<Int, MutableIntData> = mutableMapOf(),
 ) : MutableSerializableParentData()
+
+@Serializable
+data class SimpleSerializableData(
+    val t: Int
+) : SerializableParentData()
