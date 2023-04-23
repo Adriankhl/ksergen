@@ -200,6 +200,7 @@ fun generateSerializersModuleFile(
                         }
                         endControlFlow()
                     }
+
                     mutableSerializableMap.forEach { (parent, childList) ->
                         val parentName = MemberName(
                             parent.packageName.asString(),
@@ -217,7 +218,7 @@ fun generateSerializersModuleFile(
 
                         val immutableParentName = MemberName(
                             parent.packageName.asString(),
-                            if (parent.hasAnnotation(GenerateImmutable::class)) {
+                            if (parent.simpleName.asString().startsWith("Mutable")) {
                                 parent.simpleName.asString().drop(7)
                             } else {
                                 parent.simpleName.asString()

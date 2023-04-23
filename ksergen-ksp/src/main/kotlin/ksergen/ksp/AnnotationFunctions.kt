@@ -81,7 +81,8 @@ internal fun convertNonGenericImmutable(
 ): TypeName {
     logger.info("Start converting non-generic type")
 
-    val shouldConvertType: Boolean = type.declaration.hasAnnotation(GenerateImmutable::class)
+    val shouldConvertType: Boolean = type.declaration.hasAnnotation(GenerateImmutable::class) ||
+            type.declaration.simpleName.asString().startsWith("Mutable")
 
     return if (shouldConvertType) {
         val className: ClassName = type.toClassName()
