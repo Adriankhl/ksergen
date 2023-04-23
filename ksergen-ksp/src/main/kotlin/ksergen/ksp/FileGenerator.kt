@@ -27,6 +27,8 @@ import ksergen.annotations.GenerateImmutable
  * @param fileName the file name of the generated file
  * @param declarationList generate the immutable version of these classes
  * @param logger logger for ksp process
+ *
+ * @return a kotlin-poet FileSpec
  */
 fun generateImmutableFile(
     packageName: String,
@@ -131,11 +133,23 @@ fun generateImmutableFile(
     }.build()
 }
 
+/**
+ * Generate ksergen.serializers.module.GeneratedModule to help automatically
+ * registering class-subclass relation for polymorphic serialization
+ *
+ * @param serializableDeclarations classes with Serialization annotation
+ * @param immutableDeclarations classes with GenerateImmutable annotation
+ * @param logger logger for ksp process
+ *
+ * @return a kotlin-poet FileSpec
+ */
 fun generateSerializersModuleFile(
     serializableDeclarations: List<KSClassDeclaration>,
     immutableDeclarations: List<KSClassDeclaration>,
     logger: KSPLogger,
 ): FileSpec {
+    // only register the relation if both the child and the parent are serializable,
+    // i.e., with Serializable notation or with GenerateImmutable notation
     val originalSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
         serializableDeclarations.flatMap { c ->
             c.getAllSuperTypes().map { s ->
@@ -152,6 +166,8 @@ fun generateSerializersModuleFile(
 
     logger.info("${originalSerializablePairs.size} original serializable pair")
 
+    // only register the relation if both the child and the parent are serializable,
+    // i.e., with Serializable notation or with GenerateImmutable notation
     val mutableSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
         immutableDeclarations.flatMap { c ->
             c.getAllSuperTypes().map { s ->
@@ -174,6 +190,7 @@ fun generateSerializersModuleFile(
     ).apply {
         val builder = TypeSpec.objectBuilder("GeneratedModule").apply {
             indent("    ")
+
             val moduleBuilder = PropertySpec.builder(
                 "module",
                 SerializersModule::class
@@ -188,6 +205,7 @@ fun generateSerializersModuleFile(
                         "subclass"
                     )
 
+                    // Group serializable class by parent
                     val originalSerializableMap: Map<KSClassDeclaration, List<KSClassDeclaration>> =
                         originalSerializablePairs.groupBy {
                             it.first
@@ -219,6 +237,7 @@ fun generateSerializersModuleFile(
                         endControlFlow()
                     }
 
+                    // Group serializable class by parent
                     mutableSerializableMap.forEach { (parent, childList) ->
                         val parentName = MemberName(
                             parent.packageName.asString(),
@@ -234,6 +253,10 @@ fun generateSerializersModuleFile(
                         }
                         endControlFlow()
 
+                        // also register the parent-child relation for the immutable counterpart
+                        // this function guess that there is a immutable version of the parent
+                        // if the class has the GenerateImmutable annotation
+                        // or the name start with Mutable
                         val immutableParentName = MemberName(
                             parent.packageName.asString(),
                             if (parent.simpleName.asString().startsWith("Mutable")) {

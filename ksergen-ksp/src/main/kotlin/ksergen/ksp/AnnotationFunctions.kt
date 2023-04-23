@@ -61,8 +61,9 @@ internal fun convertGenericTypeImmutable(
 ): TypeName {
     logger.info("Start converting generic type")
 
-    val shouldConvertType: Boolean = type.declaration.hasAnnotation(GenerateImmutable::class)
-            || isMutableCollection(type.declaration)
+    val shouldConvertType: Boolean = type.declaration.hasAnnotation(GenerateImmutable::class) ||
+            isMutableCollection(type.declaration) ||
+            type.declaration.simpleName.asString().startsWith("Mutable")
 
     return if (shouldConvertType) {
         val className: ClassName = type.toClassName()
