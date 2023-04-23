@@ -2,7 +2,6 @@ package ksergen.annotations
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MetaSerializable
-import kotlinx.serialization.Serializable
 
 /**
  * Generate a serializable immutable copy of this class.

@@ -14,6 +14,7 @@ data class MutableSimpleMasterData(val s: Int = 9): MutablePolymorphicSealData()
 sealed interface MutableDummyInterface
 
 @GenerateImmutable
+@SerialName("PolymorphicData")
 data class MutablePolymorphicData(
     val d: MutablePolymorphicSealData = MutableMasterData(),
     val dm: MutableMap<Int, MutablePolymorphicSealData> = mutableMapOf(
