@@ -7,14 +7,18 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.ksp.toAnnotationSpec
 import com.squareup.kotlinpoet.ksp.toKModifier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import ksergen.annotations.GenerateImmutable
 
 fun generateImmutableFile(
     packageName: String,
@@ -26,6 +30,8 @@ fun generateImmutableFile(
         packageName = packageName,
         fileName = fileName,
     ).apply {
+        indent("    ")
+
         declarationList.forEach { declaration ->
             val builder = if (declaration.classKind == ClassKind.INTERFACE) {
                 TypeSpec.interfaceBuilder(declaration.simpleName.getShortName().drop(7))
@@ -112,43 +118,59 @@ fun generateSerializersModuleFile(
     immutableDeclarations: List<KSClassDeclaration>,
     logger: KSPLogger,
 ): FileSpec {
+    val originalSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
+        serializableDeclarations.flatMap { c ->
+            c.getAllSuperTypes().map { s ->
+                s.declaration
+            }.filterIsInstance<KSClassDeclaration>().filter { p ->
+                p.getSealedSubclasses().none()
+            }.filter { p ->
+                p.hasAnnotation(Serializable::class) ||
+                        p.hasAnnotation(GenerateImmutable::class)
+            }.map { p ->
+                p to c
+            }
+        }
+
+    logger.info("${originalSerializablePairs.size} original serializable pair")
+
+    val mutableSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
+        immutableDeclarations.flatMap { c ->
+            c.getAllSuperTypes().map { s ->
+                s.declaration
+            }.filterIsInstance<KSClassDeclaration>().filter { p ->
+                p.getSealedSubclasses().none()
+            }.filter { p ->
+                p.hasAnnotation(Serializable::class) ||
+                        p.hasAnnotation(GenerateImmutable::class)
+            }.map { p ->
+                p to c
+            }
+        }
+
+    logger.info("${mutableSerializablePairs.size} mutable serializable pair")
+
     return FileSpec.builder(
         packageName = "ksergen.serializers.module",
         fileName = "GeneratedModule"
     ).apply {
-        val builder = TypeSpec.objectBuilder("GeneratedModule")
+        val builder = TypeSpec.objectBuilder("GeneratedModule").apply {
+            indent("    ")
+            val moduleBuilder = PropertySpec.builder(
+                "module",
+                SerializersModule::class
+            ).apply {
+                initializer(buildCodeBlock {
+                    beginControlFlow("SerializersModule")
+                    addStatement("1")
+                    endControlFlow()
+                })
+            }
+
+            addProperty(moduleBuilder.build())
+        }
 
         addType(builder.build())
-
-        val originalSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
-            serializableDeclarations.flatMap { c ->
-                c.getAllSuperTypes().map { s ->
-                    s.declaration
-                }.filterIsInstance<KSClassDeclaration>().filter { p ->
-                    p.getSealedSubclasses().none()
-                }.filter { p ->
-                    p.hasAnnotation(Serializable::class)
-                }.map { p ->
-                    p to c
-                }
-            }
-
-        logger.info("${originalSerializablePairs.size} original serializable pair")
-
-        val mutableSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
-            immutableDeclarations.flatMap { c ->
-                c.getAllSuperTypes().map { s ->
-                    s.declaration
-                }.filterIsInstance<KSClassDeclaration>().filter { p ->
-                    p.getSealedSubclasses().none()
-                }.filter { p ->
-                    p.hasAnnotation(Serializable::class)
-                }.map { p ->
-                    p to c
-                }
-            }
-
-        logger.info("${mutableSerializablePairs.size} mutable serializable pair")
 
     }.build()
 }
