@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.jetbrains.dokka")
+    id("maven-publish")
 }
 
 dependencies {
@@ -12,5 +13,15 @@ dependencies {
 tasks {
     test {
         useJUnitPlatform()
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.github.adriankhl"
+            artifactId = "ksergen-annotations"
+            version = libs.versions.ksergenVersion.get()
+        }
     }
 }

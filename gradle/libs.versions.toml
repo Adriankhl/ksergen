@@ -1,4 +1,5 @@
 [versions]
+ksergenVersion = "0.1"
 kotlinVersion = "1.8.20"
 kspVersion = "1.8.20-1.0.10"
 kotlinPoetVersion = "1.12.0"
