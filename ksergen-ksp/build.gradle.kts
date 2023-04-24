@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm")
     id("org.jetbrains.dokka")
+    id("maven-publish")
 }
 
 dependencies {
@@ -10,4 +11,16 @@ dependencies {
     implementation(libs.kotlinPoet)
     implementation(libs.kotlinPoet.ksp)
     testImplementation(kotlin("test"))
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.github.adriankhl.ksergen"
+            artifactId = "ksergen-ksp"
+            version = libs.versions.ksergenVersion.get()
+
+            from(components["kotlin"])
+        }
+    }
 }

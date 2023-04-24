@@ -19,9 +19,11 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "com.github.adriankhl"
+            groupId = "com.github.adriankhl.ksergen"
             artifactId = "ksergen-annotations"
             version = libs.versions.ksergenVersion.get()
+
+            from(components["kotlin"])
         }
     }
 }
