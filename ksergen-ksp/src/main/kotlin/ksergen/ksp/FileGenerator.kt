@@ -151,7 +151,10 @@ fun generateSerializersModuleFile(
     // only register the relation if both the child and the parent are serializable,
     // i.e., with Serializable notation or with GenerateImmutable notation
     val originalSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
-        serializableDeclarations.flatMap { c ->
+        serializableDeclarations.filter {
+            // sealed class cannot be a subclass in the polymorphic serializer
+            it.getSealedSubclasses().none()
+        }.flatMap { c ->
             c.getAllSuperTypes().map { s ->
                 s.declaration
             }.filterIsInstance<KSClassDeclaration>().filter { p ->
@@ -169,7 +172,10 @@ fun generateSerializersModuleFile(
     // only register the relation if both the child and the parent are serializable,
     // i.e., with Serializable notation or with GenerateImmutable notation
     val mutableSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
-        immutableDeclarations.flatMap { c ->
+        immutableDeclarations.filter {
+            // sealed class cannot be a subclass in the polymorphic serializer
+            it.getSealedSubclasses().none()
+        }.flatMap { c ->
             c.getAllSuperTypes().map { s ->
                 s.declaration
             }.filterIsInstance<KSClassDeclaration>().filter { p ->
