@@ -192,7 +192,7 @@ fun generateSerializersModuleFile(
             indent("    ")
 
             val moduleBuilder = PropertySpec.builder(
-                "module",
+                "serializersModule",
                 SerializersModule::class
             ).apply {
                 initializer(buildCodeBlock {

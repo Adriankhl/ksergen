@@ -12,7 +12,7 @@ internal class GeneratedSerializationModuleTest {
     fun serializationTest() {
         val format = Json {
             encodeDefaults = true
-            serializersModule = GeneratedModule.module
+            serializersModule = GeneratedModule.serializersModule
         }
 
         val a = MutableExternalPolymorphicData()
