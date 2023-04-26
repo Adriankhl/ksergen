@@ -18,6 +18,11 @@ internal class KSerGenSymbolProcessor(
 ) : SymbolProcessor {
     private val logger = environment.logger
 
+    private val generatedModulePackage = environment.options.getOrDefault(
+        "generatedModulePackage",
+        "ksergen.serializers.module"
+    )
+
     // Whether this is the first process
     // Prevent processing generated files
     private var isFirst = true
@@ -79,7 +84,10 @@ internal class KSerGenSymbolProcessor(
 
             // Generate a file for SerializersModule
             val serializersModuleFileSpec: FileSpec = generateSerializersModuleFile(
-                serializableDeclarations, immutableDeclarations, logger
+                packageName = generatedModulePackage,
+                serializableDeclarations = serializableDeclarations,
+                immutableDeclarations = immutableDeclarations,
+                logger = logger
             )
 
             serializersModuleFileSpec.writeTo(environment.codeGenerator, false)

@@ -145,6 +145,7 @@ fun generateImmutableFile(
  * @return a kotlin-poet FileSpec
  */
 fun generateSerializersModuleFile(
+    packageName: String,
     serializableDeclarations: List<KSClassDeclaration>,
     immutableDeclarations: List<KSClassDeclaration>,
     logger: KSPLogger,
@@ -192,7 +193,7 @@ fun generateSerializersModuleFile(
     logger.info("${mutableSerializablePairs.size} mutable serializable pair")
 
     return FileSpec.builder(
-        packageName = "ksergen.serializers.module",
+        packageName = packageName,
         fileName = "GeneratedModule"
     ).apply {
         val builder = TypeSpec.objectBuilder("GeneratedModule").apply {
