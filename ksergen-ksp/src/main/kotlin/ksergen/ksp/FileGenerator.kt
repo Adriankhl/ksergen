@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -153,12 +154,12 @@ fun generateSerializersModuleFile(
     val originalSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
         serializableDeclarations.filter {
             // sealed class cannot be a subclass in the polymorphic serializer
-            it.getSealedSubclasses().none()
+            !it.modifiers.contains(Modifier.SEALED)
         }.flatMap { c ->
             c.getAllSuperTypes().map { s ->
                 s.declaration
             }.filterIsInstance<KSClassDeclaration>().filter { p ->
-                p.getSealedSubclasses().none()
+                !p.modifiers.contains(Modifier.SEALED)
             }.filter { p ->
                 p.hasAnnotation(Serializable::class) ||
                         p.hasAnnotation(GenerateImmutable::class)
@@ -174,12 +175,12 @@ fun generateSerializersModuleFile(
     val mutableSerializablePairs: List<Pair<KSClassDeclaration, KSClassDeclaration>> =
         immutableDeclarations.filter {
             // sealed class cannot be a subclass in the polymorphic serializer
-            it.getSealedSubclasses().none()
+            !it.modifiers.contains(Modifier.SEALED)
         }.flatMap { c ->
             c.getAllSuperTypes().map { s ->
                 s.declaration
             }.filterIsInstance<KSClassDeclaration>().filter { p ->
-                p.getSealedSubclasses().none()
+                !p.modifiers.contains(Modifier.SEALED)
             }.filter { p ->
                 p.hasAnnotation(Serializable::class) ||
                         p.hasAnnotation(GenerateImmutable::class)
