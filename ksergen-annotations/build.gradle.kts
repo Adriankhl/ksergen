@@ -19,7 +19,7 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "com.github.adriankhl.ksergen"
+            groupId = "io.github.adriankhl"
             artifactId = "ksergen-annotations"
             version = libs.versions.ksergenVersion.get()
 

@@ -16,7 +16,7 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "com.github.adriankhl.ksergen"
+            groupId = "io.github.adriankhl"
             artifactId = "ksergen-ksp"
             version = libs.versions.ksergenVersion.get()
 
