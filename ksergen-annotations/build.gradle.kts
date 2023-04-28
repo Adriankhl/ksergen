@@ -1,8 +1,8 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    id("org.jetbrains.dokka")
-    id("maven-publish")
+    `maven-publish`
+    signing
 }
 
 dependencies {
