@@ -25,7 +25,7 @@ publishing {
 
             pom {
                 name.set("KSerGen")
-                description.set("Code generation library for Kotlin serialization and immutable data class")
+                description.set("KSP code generation library for Kotlin serialization and immutable data class")
                 url.set("https://github.com/Adriankhl/ksergen/")
 
                 licenses {
@@ -49,4 +49,25 @@ publishing {
             }
         }
     }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+
+            val ossrhUserName: String? by project
+            val ossrhPassword: String? by project
+            credentials {
+                username = ossrhUserName
+                password = ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications["maven"])
 }
