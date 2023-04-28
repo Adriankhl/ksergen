@@ -3,7 +3,7 @@ package ksergen.mock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import ksergen.serializers.module.GeneratedModule
+import ksergen.GeneratedModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
