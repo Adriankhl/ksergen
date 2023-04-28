@@ -45,7 +45,7 @@ afterEvaluate {
 
 Whenever you build your source code (e.g., `gradle build`),
 the `ksergen-ksp` will scan the parents of your `@Serializable` classes
-to generate a `GeneratedModule` object at the `ksergen.serializers.module` package:
+to generate a `GeneratedModule` object at the `ksergen` package:
 
 ```kotlin
 public object GeneratedModule {

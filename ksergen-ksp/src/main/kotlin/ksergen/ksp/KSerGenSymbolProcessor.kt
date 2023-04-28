@@ -20,7 +20,7 @@ internal class KSerGenSymbolProcessor(
 
     private val generatedModulePackage = environment.options.getOrDefault(
         "generatedModulePackage",
-        "ksergen.serializers.module"
+        "ksergen"
     )
 
     // Whether this is the first process
