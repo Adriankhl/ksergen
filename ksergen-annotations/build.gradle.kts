@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    `java-library`
+    id("org.jetbrains.dokka")
     `maven-publish`
     signing
 }
@@ -17,6 +17,11 @@ tasks {
     }
 }
 
+val javadocJar = tasks.register<Jar>("dokkaJavadocJar") {
+    dependsOn(tasks.dokkaJavadoc)
+    from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+    archiveClassifier.set("javadoc")
+}
 
 publishing {
     publications {
@@ -26,6 +31,8 @@ publishing {
             version = libs.versions.ksergenVersion.get()
 
             from(components["kotlin"])
+
+            artifact(javadocJar.get())
 
             pom {
                 name.set("KSerGen")
