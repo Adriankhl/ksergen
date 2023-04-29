@@ -20,6 +20,11 @@ val javadocJar = tasks.register<Jar>("dokkaJavadocJar") {
     archiveClassifier.set("javadoc")
 }
 
+val sourceJar = tasks.register<Jar>("sourceJar") {
+    from(sourceSets.main.get().allSource)
+    archiveClassifier.set("sources")
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
@@ -30,6 +35,7 @@ publishing {
             from(components["kotlin"])
 
             artifact(javadocJar.get())
+            artifact(sourceJar.get())
 
             pom {
                 name.set("KSerGen")
