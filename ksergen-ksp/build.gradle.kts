@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm")
     id("org.jetbrains.dokka")
+    `java-library`
     `maven-publish`
     signing
 }
@@ -63,6 +64,11 @@ publishing {
             }
         }
     }
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 signing {
