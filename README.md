@@ -3,7 +3,7 @@
 Kotlin read-only `val`, `data class`, and
 [kotlinx-serialization](https://github.com/Kotlin/kotlinx.serialization)
 provide us a nice way to structure our data in concurrent programs.
-However, we experienced the following problems:
+However, we experienced the following inconveniences:
 
 1. Need to manually register subclasses for [open-polymorphism](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/polymorphism.md#open-polymorphism).
 2. Sometimes we need both a mutable version and an immutable version of the same data.
@@ -13,6 +13,14 @@ This library is an attempt to improve the development experience.
 ## Generate serializers module
 
 ### Dependency 1
+
+Add [Maven Central](https://central.sonatype.com/) to the `repositories`:
+
+```kotlin
+repositories {
+    mavenCentral()
+}
+```
 
 Add the Google ksp plugin:
 
@@ -201,6 +209,7 @@ fun sumTest() {
 
 ## Related libraries
 
-[kopykat](https://github.com/kopykat-kt/kopykat) implements a `copy` method to modify nested
-immutable data class. Actually, this library is inspired by `kopykat`, but we found the solution
+[kopykat](https://github.com/kopykat-kt/kopykat) implements a `copy` method to modify a
+nynested immutable data class. Actually, this library is inspired by `kopykat`,
+but we created this library since the solution
 provided by `kopykat` doesn't suit our need.
