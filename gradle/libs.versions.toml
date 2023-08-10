@@ -4,7 +4,7 @@ kotlinVersion = "1.8.21"
 kspVersion = "1.8.21-1.0.11"
 kotlinPoetVersion = "1.13.1"
 dokkaVersion = "1.8.10"
-gradleVersionPluginVersion = "0.46.0"
+gradleVersionPluginVersion = "0.47.0"
 kotlinxSerializationVersion = "1.5.0"
 
 [libraries]
